@@ -1,22 +1,29 @@
 from flask import *
-from gevent.pywsgi import WSGIServer
+from flask_cors import CORS, cross_origin
 from waitress import serve
+from gevent.pywsgi import WSGIServer
+from bson import json_util, ObjectId
+import sys
+
+sys.path.insert(0, "D:\Python\The-Movie-Flask-api-image")
 
 app = Flask(__name__)
+# CORS(app)
+
+api_v1_cors_config = {
+    "origins": "*",
+    "methods": ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"],
+}
+
+CORS(app, resources={r"/*": api_v1_cors_config})
 
 
-@app.route("/image/<name>", methods=["GET"])
-def img_route(name):
-    if request.args.get("api", default="", type=str) == "hieu987":
-        src_img = f"images/{name}"
-        return send_file(
-            src_img,
-            mimetype="image/gif",
-        )
+# route app
+from routes.Routes import route
 
+route(app)
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", port=7777)
-
+    # app.run(debug=True, port=5000, use_reloader=True)
     http_server = WSGIServer(("", 5000), app)
     http_server.serve_forever()
